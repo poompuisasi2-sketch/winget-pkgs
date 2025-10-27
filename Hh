@@ -1,0 +1,72 @@
+
+$ git map-branches -v
+origin/main                                   
+  cool_feature         [ 4 commits            ]
+    subfeature         [ 2 commits | behind 1 ]
+  fixit                [ 2 commits            ]
+    frozen_branch *    [ 3 commits            ]
+
+$ git new-branch independent_cl
+
+$ git map-branches -v
+origin/main                                  
+  cool_feature        [ 4 commits            ]
+    subfeature        [ 2 commits | behind 1 ]
+  fixit               [ 2 commits            ]
+    frozen_branch     [ 3 commits            ]
+  independent_cl *                           
+
+$ vi foo && git add -A && git commit -m foo
+$ git map-branches -v
+origin/main                                  
+  cool_feature        [ 4 commits            ]
+    subfeature        [ 2 commits | behind 1 ]
+  fixit               [ 2 commits            ]
+    frozen_branch     [ 3 commits            ]
+  independent_cl *    [ 1 commit             ]
+
+$ git new-branch --upstream subfeature nested_cl
+
+$ git map-branches -v
+origin/main                                 
+  cool_feature       [ 4 commits            ]
+    subfeature       [ 2 commits | behind 1 ] <1>
+      nested_cl *                           
+  fixit              [ 2 commits            ]
+    frozen_branch    [ 3 commits            ]
+  independent_cl     [ 1 commit             ]
+
+$ git checkout cool_feature
+Switched to branch 'cool_feature'
+Your branch is ahead of 'origin/main' by 4 commits.
+  (use "git push" to publish your local commits)
+
+$ git new-branch --upstream_current cl_depends_on_cool_feature
+
+$ git map-branches -v
+origin/main                                                
+  cool_feature                      [ 4 commits            ]
+    cl_depends_on_cool_feature *                           
+    subfeature                      [ 2 commits | behind 1 ]
+      nested_cl                                            
+  fixit                             [ 2 commits            ]
+    frozen_branch                   [ 3 commits            ]
+  independent_cl                    [ 1 commit             ]
+
+$ git checkout subfeature
+Your branch and 'cool_feature' have diverged,
+and have 2 and 1 different commits each, respectively.
+  (use "git pull" if you want to integrate the remote branch with yours)
+
+$ git new-branch --inject_current injected_cl
+
+$ git map-branches -v
+origin/main                                              
+  cool_feature                    [ 4 commits            ]
+    cl_depends_on_cool_feature                           
+    injected_cl *                                        
+      subfeature                  [ 2 commits | behind 1 ]
+        nested_cl                                        
+  fixit                           [ 2 commits            ]
+    frozen_branch                 [ 3 commits            ]
+  independent_cl                  [ 1 commit             ]
